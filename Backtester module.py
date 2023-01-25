@@ -6,7 +6,7 @@ import backtrader as bt
 exchange = ccxt.binance()
 ohlcv = exchange.fetch_ohlcv('BTC/USDT', timeframe='1h')
 
-# Step 2: Convert data to pandas DataFrame
+# Step 2: Convert data to pandasa DataFrame
 data = pd.DataFrame(ohlcv, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
 data['timestamp'] = pd.to_datetime(data['timestamp'], unit='ms')
 data.set_index('timestamp', inplace=True)
@@ -114,9 +114,9 @@ class MyStrategy(bt.Strategy):
 
 
 cerebro = bt.Cerebro()
-strats = cerebro.optstrategy(
-        MyStrategy,
-        sma_period=range(10, 31))
+#strats = cerebro.optstrategy(
+#        MyStrategy,
+#        sma_period=range(10, 31))
 cerebro.broker.setcash(initial_balance)
 cerebro.broker.setcommission(commission)
 cerebro.addstrategy(MyStrategy)
