@@ -2,27 +2,11 @@ import ccxt
 import pandas as pd
 import backtrader as bt
 
-# Step 1: Create an exchange object and load market data
-exchange = ccxt.binance()
-ohlcv = exchange.fetch_ohlcv('BTC/USDT', timeframe='1h')
-
-# Step 2: Convert data to pandasa DataFrame
-data = pd.DataFrame(ohlcv, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
-data['timestamp'] = pd.to_datetime(data['timestamp'], unit='ms')
-data.set_index('timestamp', inplace=True)
-
-
-# Step 4: Set parameters for the strategy
-initial_balance=10000
-commission=0.001
-asset_number=0.1
-
-# Step 3: Define strategy and run backtest
-class MyStrategy(bt.Strategy):
+class Strategy2(bt.Strategy):
     params = (
         ("sma_period", 20),
         ('printlog', True),
-        )
+        ('printPrice', False),)
 #Other params: ('exitbars', 1),    
     def log(self, txt, dt=None, doprint=False):
         if self.params.printlog or doprint:
@@ -38,8 +22,10 @@ class MyStrategy(bt.Strategy):
         self.dataclose=self.data.close
         # To keep track of pending orders and buy price/commission
         self.order = None
-        self.buyprice = None
-        self.buycomm = None
+        self.nbTrades=0
+        self.succesfulTrades=0
+        self.totalCom=0
+        self.initialValuePort=self.broker.getvalue()
 
         # Indicators for the plotting show
         bt.indicators.ExponentialMovingAverage(self.datas[0], period=25)
@@ -85,12 +71,13 @@ class MyStrategy(bt.Strategy):
             return
         self.log('OPERATION PROFIT, GROSS %.2f, NET %.2f' %
                  (trade.pnl, trade.pnlcomm))
-        self.NbTrades = self.NbTrades+1
+        self.nbTrades += 1
         if trade.pnlcomm > 0:
-            self.succesfulTrade = self.succesfulTrade+ 1
+            self.succesfulTrades += 1
             
     def next(self):
-        self.log('Close, %.2f' % self.dataclose[0])
+        if self.params.printPrice:
+            self.log('Close, %.2f' % self.dataclose[0])
         # Check if an order is pending ... if yes, we cannot send a 2nd one
         if self.order:
             return
@@ -113,33 +100,12 @@ class MyStrategy(bt.Strategy):
 
     def stop(self):
 #To optimize MA
-#        self.log('(MA Period %2d) Ending Value %.2f' %
-#                 (self.params.sma_period, self.broker.getvalue()), doprint=True)
+        self.log('(MA Period %2d) Ending Value %.2f' %
+                 (self.params.sma_period, self.broker.getvalue()), doprint=True)
         self.log('Final Portfolio Value: %.2f' % 
                  (self.broker.getvalue()), doprint=True)
-        self.log('Number of trades: %.2f , Number of succesful trades: %.2f' % 
-                 (self.NbTrades, self.succesfulTrade), doprint=True)        
-        
-if __name__ == '__main__':
-    cerebro = bt.Cerebro()
-#   Optimize factor
-#   strats = cerebro.optstrategy(MyStrategy,sma_period=range(10, 31))
-    cerebro.broker.setcash(initial_balance)
-    cerebro.broker.setcommission(commission)
-# Backtest
-    cerebro.addstrategy(MyStrategy)
-    data = bt.feeds.PandasData(dataname=data)
-    cerebro.adddata(data)    # Add a FixedSize sizer according to the stake
-    cerebro.addsizer(bt.sizers.FixedSize, stake=asset_number)
-    print('Starting Portfolio Value: %.2f' % cerebro.broker.getvalue())
-    cerebro.run(maxcpus=1)
-    print(cerebro.broker.getvalue())
-    cerebro.plot()
-
-
-
-#trade_analyzer = results[0].analyzers.trade_analyzer.get_analysis()
-#df=pd.DataFrame(trade_analyzer)
-#print(df)
-
-
+        if self.nbTrades>0:
+            self.log('Number of trades: %.2f , Number of succesful trades: %.2f, Percent of succesful trades: %.2f' % 
+                    (self.nbTrades, self.succesfulTrades, self.succesfulTrades/self.nbTrades*100), doprint=True)
+        self.log('Total ROI on Portfolio: %.2f , Total commision spent: %.2f' % 
+                    ((self.broker.getvalue()-self.initialValuePort)/self.initialValuePort*100, self.totalCom), doprint=True)     

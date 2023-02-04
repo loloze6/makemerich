@@ -6,7 +6,7 @@ import backtrader as bt
 exchange = ccxt.binance()
 ohlcv = exchange.fetch_ohlcv('BTC/USDT', timeframe='1h')
 
-# Step 2: Convert data to pandasa DataFrame
+# Step 2: Convert data to pandas DataFrame
 data = pd.DataFrame(ohlcv, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
 data['timestamp'] = pd.to_datetime(data['timestamp'], unit='ms')
 data.set_index('timestamp', inplace=True)
@@ -21,7 +21,7 @@ asset_number=0.1
 class MyStrategy(bt.Strategy):
     params = (
         ("sma_period", 20),
-        ('printlog', True),
+        ('printlog', False),
         )
 #Other params: ('exitbars', 1),    
     def log(self, txt, dt=None, doprint=False):
@@ -85,10 +85,7 @@ class MyStrategy(bt.Strategy):
             return
         self.log('OPERATION PROFIT, GROSS %.2f, NET %.2f' %
                  (trade.pnl, trade.pnlcomm))
-        self.NbTrades = self.NbTrades+1
-        if trade.pnlcomm > 0:
-            self.succesfulTrade = self.succesfulTrade+ 1
-            
+
     def next(self):
         self.log('Close, %.2f' % self.dataclose[0])
         # Check if an order is pending ... if yes, we cannot send a 2nd one
@@ -112,29 +109,24 @@ class MyStrategy(bt.Strategy):
                 self.order = self.sell()            
 
     def stop(self):
-#To optimize MA
-#        self.log('(MA Period %2d) Ending Value %.2f' %
-#                 (self.params.sma_period, self.broker.getvalue()), doprint=True)
-        self.log('Final Portfolio Value: %.2f' % 
-                 (self.broker.getvalue()), doprint=True)
-        self.log('Number of trades: %.2f , Number of succesful trades: %.2f' % 
-                 (self.NbTrades, self.succesfulTrade), doprint=True)        
-        
-if __name__ == '__main__':
-    cerebro = bt.Cerebro()
-#   Optimize factor
-#   strats = cerebro.optstrategy(MyStrategy,sma_period=range(10, 31))
-    cerebro.broker.setcash(initial_balance)
-    cerebro.broker.setcommission(commission)
-# Backtest
-    cerebro.addstrategy(MyStrategy)
-    data = bt.feeds.PandasData(dataname=data)
-    cerebro.adddata(data)    # Add a FixedSize sizer according to the stake
-    cerebro.addsizer(bt.sizers.FixedSize, stake=asset_number)
-    print('Starting Portfolio Value: %.2f' % cerebro.broker.getvalue())
-    cerebro.run(maxcpus=1)
-    print(cerebro.broker.getvalue())
-    cerebro.plot()
+        self.log('(MA Period %2d) Ending Value %.2f' %
+                 (self.params.sma_period, self.broker.getvalue()), doprint=True)
+
+
+cerebro = bt.Cerebro()
+strats = cerebro.optstrategy(
+        MyStrategy,
+        sma_period=range(10, 31))
+cerebro.broker.setcash(initial_balance)
+cerebro.broker.setcommission(commission)
+cerebro.addstrategy(MyStrategy)
+data = bt.feeds.PandasData(dataname=data)
+cerebro.adddata(data)    # Add a FixedSize sizer according to the stake
+cerebro.addsizer(bt.sizers.FixedSize, stake=asset_number)
+print('Starting Portfolio Value: %.2f' % cerebro.broker.getvalue())
+results=cerebro.run()
+print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
+cerebro.plot()
 
 
 
