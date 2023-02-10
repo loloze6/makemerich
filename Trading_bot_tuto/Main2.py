@@ -8,9 +8,9 @@ bot = TradingBot()
 data_source=CCXT_DATA()
 
 backtest_parameters = {
-    'start_date': 1514764800000,
+    'start_date': '2019-01-01T00:00:00Z',
     'duration': 200,
-    'timeframe': Timeframes.d1,
+    'timeframe': Timeframes.m1,
     'symbol': 'BTC/USDT',
     'initial_cash': 10000,
     'commission': 0.001,

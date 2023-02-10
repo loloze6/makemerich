@@ -20,9 +20,9 @@ class CCXT_DATA(DataSource):
         except ValueError as e:
             raise ValueError(f'CCXT does not support {symbol} symbol')
 
-    # def _get_start_date(self, start_date):
-        
-    #     return start_date
+    def _get_start_date(self, start_date):
+        start_date=ccxt.binance().parse8601(start_date)
+        return start_date
        
     def _get_data(self, symbol, start_date, duration, timeframe):
         data = ccxt.binance().fetch_ohlcv(symbol, since=start_date, limit=duration, timeframe=timeframe)
