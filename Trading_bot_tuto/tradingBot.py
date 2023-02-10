@@ -34,6 +34,6 @@ class TradingBot:
                 cerebro.addanalyzer(analyzer)
 
         results = cerebro.run(maxcpus=1)
-        return results
+        return results, cerebro
 
 
