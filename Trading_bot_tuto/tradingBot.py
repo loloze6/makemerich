@@ -36,4 +36,34 @@ class TradingBot:
         results = cerebro.run(maxcpus=1)
         return results, cerebro
 
+    def live(self, strategy, live_parameters, store, sizer=bt.sizers.FixedSize, strategy_parameters=None,
+             sizer_parameters=None, analyzers=None):
+        
+        data = store.get_data(dataname=live_parameters.get('dataname'))
+        broker = store.getbroker()
 
+        cerebro = bt.Cerebro()
+        cerebro.adddata(data)
+        cerebro.setbroker(broker)
+
+        self.configure_cerebro(cerebro, strategy, strategy_parameters, sizer, sizer_parameters, analyzers, live=True)
+
+        result = cerebro.run()
+        return result
+
+    @staticmethod
+    def configure_cerebro(cerebro, strategy, strategy_parameters, sizer, sizer_parameters, analyzers, live=False):
+        if not strategy_parameters:
+            strategy_parameters = {}
+        if live:
+            cerebro.addstrategy(strategy, **strategy_parameters)
+        else:
+            cerebro.optstrategy(strategy, **strategy_parameters)
+
+        if not sizer_parameters:
+            sizer_parameters = {}
+        cerebro.addsizer(sizer, **sizer_parameters)
+
+        if analyzers:
+            for analyzer in analyzers:
+                cerebro.addanalyzer(analyzer)
