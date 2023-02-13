@@ -14,7 +14,7 @@ class BaseStrategy(bt.Strategy):
     def __init__(self):
         self.orders_ref = list()
         self.total_profit = 0
-        self.initial_cash = self.broker.cash
+        self.initial_cash = self.broker.getcash()
         
         self._init_indicators()
         self.active = True

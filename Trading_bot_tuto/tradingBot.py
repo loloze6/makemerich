@@ -39,7 +39,7 @@ class TradingBot:
     def live(self, strategy, live_parameters, store, sizer=bt.sizers.FixedSize, strategy_parameters=None,
              sizer_parameters=None, analyzers=None):
         
-        data = store.get_data(dataname=live_parameters.get('dataname'))
+        data = store.getdata(dataname=live_parameters.get('dataname'))
         broker = store.getbroker()
 
         cerebro = bt.Cerebro()

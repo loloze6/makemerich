@@ -1,5 +1,4 @@
 import backtrader as bt
-import ccxt
 from Trading_bot_tuto.tradingBot import TradingBot
 from Trading_bot_tuto.timeframes import Timeframes
 from Trading_bot_tuto.ccxt_data import CCXT_DATA
@@ -23,7 +22,7 @@ backtest_parameters = {
 # }
 strategy = BracketStrategyExample
 strategy_parameters = {
-    'period_me1': 12, 'logging': True, 'stop_loss': range(1, 3), 'risk_reward': range(1, 5)
+    'period_me1': 12, 'logging': False, 'stop_loss': range(1, 3), 'risk_reward': range(1, 5)
 }
 
 
