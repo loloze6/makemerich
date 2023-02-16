@@ -3,7 +3,7 @@ import pandas as pd
 import datetime as dt
 
 from Trading_bot_tuto.timeframes import Timeframes
-from datetime import datetime, timedelta
+
 class TradingBot:
     def backtest(self, strategy, backtest_parameters, data_source, sizer=bt.sizers.FixedSize, strategy_parameters=None,
                 sizer_parameters=None, analyzers=None):
@@ -38,14 +38,11 @@ class TradingBot:
 
     def live(self, strategy, live_parameters, store, sizer=bt.sizers.FixedSize, strategy_parameters=None,
              sizer_parameters=None, analyzers=None):
-        hist_start_date = datetime.utcnow() - timedelta(minutes=50)
-        data = store.getdata(dataname='BTC/USDT', name="BTCUSDT",
-                     timeframe=bt.TimeFrame.Minutes, fromdate=hist_start_date,
-                     compression=1, ohlcv_limit=50, drop_newest=True)
+        
         data = store.getdata(dataname=live_parameters.get('dataname'))
         broker = store.getbroker()
 
-        cerebro = bt.Cerebro(quicknotify=True)
+        cerebro = bt.Cerebro()
         cerebro.adddata(data)
         cerebro.setbroker(broker)
 

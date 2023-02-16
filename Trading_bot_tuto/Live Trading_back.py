@@ -5,7 +5,6 @@ import time
 from Trading_bot_tuto.tradingBot import TradingBot
 from Trading_bot_tuto.CustomStrategy import BracketStrategyExample
 from GetAPIKeys import GetAPIKeys
-from Trading_bot_tuto.Base_Strategy_simplified import TestStrategy
 
 
 
@@ -17,32 +16,27 @@ binance_api_key = credential['User']
 binance_api_secret = credential['Password']
 
 
+
 store2 = CCXTStore(
     exchange='binance',
-    currency='USDT',
+    currency='USD',
     config={
         'apiKey': binance_api_key,
         'secret': binance_api_secret,
         'nonce': lambda: str(int(time.time() * 1000)),
         'enableRateLimit': True,
-        'adjustForTimeDifference': True,
-        'newOrderRespType': 'FULL',
-        'defaultTimeInForce': 'GTC'
     },
     retries=1,
-    sandbox=sandbox,
-    debug=True
+    sandbox=sandbox
 )
 # binance.options = {'adjustForTimeDifference': True}
 
 bot = TradingBot()
 
-strategy = TestStrategy
-# strategy_parameters = {
-#     'period_me1': 12, 'logging': False, 'stop_loss': 1, 'risk_reward': range(1, 5)
-# }
-
-strategy_parameters = {}
+strategy = BracketStrategyExample
+strategy_parameters = {
+    'period_me1': 12, 'logging': False, 'stop_loss': 1, 'risk_reward': range(1, 5)
+}
 
 sizer = bt.sizers.PercentSizer
 sizer_parameters = {
