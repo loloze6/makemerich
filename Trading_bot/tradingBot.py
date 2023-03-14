@@ -39,7 +39,6 @@ class TradingBot:
         if timeDeltaMin:
             hist_start_date = datetime.utcnow() - timedelta(minutes=timeDeltaMin)
         else: hist_start_date=None
- #Retsrat here! good luck
         name=live_parameters.get('name')
         timeframe=live_parameters.get('timeframe','')
         compression=live_parameters.get('compression')
@@ -55,8 +54,34 @@ class TradingBot:
                              )
         # timeframe=live_parameters.get('timeframe')
         # data = store.getdata(dataname=live_parameters.get('dataname'), timeframe=timeframe)
-        broker = store.getbroker()
 
+
+
+        # Get the broker and pass any kwargs if needed.
+        # ----------------------------------------------
+        # Broker mappings have been added since some exchanges expect different values
+        # to the defaults. Below for Binance
+
+
+        broker_mapping = {
+            'order_types': {
+                bt.Order.Market: 'MARKET',
+                bt.Order.Limit: 'LIMIT',
+                bt.Order.Stop: 'STOP_LOSS_LIMIT',  # stop-loss for kraken, stop for bitmex
+                bt.Order.StopLimit: 'STOP_LOSS_LIMIT'
+            },
+            'mappings': {
+                'closed_order': {
+                    'key': 'status',
+                    'value': 'closed'
+                },
+                'canceled_order': {
+                    'key': 'status',
+                    'value': 'canceled'
+                }
+            }
+        } 
+        broker = store.getbroker(broker_mapping=broker_mapping)
         cerebro = bt.Cerebro(quicknotify=True)
         cerebro.adddata(data)
         cerebro.setbroker(broker)

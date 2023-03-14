@@ -58,12 +58,21 @@ class BaseStrategy(bt.Strategy):
         self._log(colored('TOTAL PROFIT %.2f' % self.total_profit, 'green' if self.total_profit > 0 else 'red'))
 
     def _log_order(self, order):
-        self._log('Order ref: {} / Type {} / Status {}'.format(
-            order.ref,
-            colored('BUY' if order.isbuy() else 'SELL', 'green' if order.isbuy() else 'red'),
-            order.getstatusname()
-        ))
-
+        if order.status in [order.Expired]:
+            self._log('BUY EXPIRED')
+        else:
+            self._log('Order ref: {} / Type {} / Status {} / ExecType {} / Size {} / Alive {} / Price {} / Value {} / Comm {}'.format(
+                order.ref,
+                colored('BUY' if order.isbuy() else 'SELL', 'green' if order.isbuy() else 'red'),
+                order.getstatusname(),
+                order.exectype,
+                order.size,
+                order.alive(),
+                order.created.price if order.status in [order.Submitted, order.Accepted] else order.executed.price,
+                order.created.value if order.status in [order.Submitted, order.Accepted] else order.executed.value,
+                order.created.comm if order.status in [order.Submitted, order.Accepted] else order.executed.comm
+            ))
+       
     def _log_iter(self):
         self._log(f"Close : {self.datas[0].close[0]}")
 
@@ -180,12 +189,31 @@ class BaseStrategy(bt.Strategy):
     def _get_long_orders_from_stop_and_take_profit(self, stop_price, take_profit_price):
         ACTUAL_PRICE = self.datas[0].close[0]
         if stop_price != ACTUAL_PRICE and take_profit_price != ACTUAL_PRICE:
+            self._log('Order bracket Price: {} / Stop Price {} / Take Profit Price  {}'.format(
+                    ACTUAL_PRICE,
+                    stop_price,
+                    take_profit_price
+                    ))
             orders = self.buy_bracket(price=ACTUAL_PRICE, stopprice=stop_price, limitprice=take_profit_price)
+
         elif stop_price != ACTUAL_PRICE and take_profit_price == ACTUAL_PRICE:
+            self._log('Order Stop Price: {} / Stop Price {} / Take Profit Price  {}'.format(
+                    ACTUAL_PRICE,
+                    stop_price,
+                    take_profit_price
+                    ))
             orders = [self.buy(), self.sell(exectype=bt.Order.Stop, price=stop_price)]
+            
         elif stop_price == ACTUAL_PRICE and take_profit_price != ACTUAL_PRICE:
+            self._log('Order Limit Price: {} / Stop Price {} / Take Profit Price  {}'.format(
+                    ACTUAL_PRICE,
+                    stop_price,
+                    take_profit_price
+                    ))
             orders = [self.buy(), self.sell(exectype=bt.Order.Limit, price=take_profit_price)]
+
         else:
+            self._log('Order BUY with no parameters')
             orders = [self.buy()]
         return orders
 

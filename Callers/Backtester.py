@@ -1,19 +1,20 @@
 import backtrader as bt
 from Trading_bot.tradingBot import TradingBot
 from Data.timeframes import Timeframes
-from Data.ccxt_data import CCXT_DATA
+from Data.ccxt_data import CCXT_DATA_BINANCE, CCXT_DATA_BYBIT
 from Strategy.EMAwithBracket import BracketStrategyExample
+from Strategy.Base_Strategy_simplified import TestStrategy
 from Strategy.BuyHoldwithBracket import BuyHoldStrategy
 
 
 bot = TradingBot()
-data_source=CCXT_DATA()
+data_source=CCXT_DATA_BINANCE()
 
 backtest_parameters = {
     'start_date': '2021-01-01T00:00:00Z',
     'duration': 720,
     'timeframe': Timeframes.m1,
-    'symbol': 'BNB/USDT',
+    'symbol': 'BTC/USDT',
     'initial_cash': 10000,
     'commission': 0.001,
     'slippage': 0.001
@@ -28,15 +29,17 @@ backtest_parameters = {
 #     'period_me1': 12, 'logging': False, 'stop_loss': range(1, 3), 'risk_reward': range(1, 5)
 # }
 
+strategy = TestStrategy
+strategy_parameters = {}
 
-strategy = BuyHoldStrategy
-strategy_parameters = {
-    'logging': True, 'stop_loss': 1, 'risk_reward': 4
-}
+# strategy = BuyHoldStrategy
+# strategy_parameters = {
+#     'logging': True, 'stop_loss': 1, 'risk_reward': 4
+# }
 
 sizer = bt.sizers.PercentSizer
 sizer_parameters = {
-    'percents': 1
+    'percents': 50
 }
 
 analyzers = [
@@ -45,6 +48,6 @@ analyzers = [
 
 results, cerebro= bot.backtest(strategy, backtest_parameters, data_source, strategy_parameters=strategy_parameters, sizer=sizer,
                        sizer_parameters=sizer_parameters, analyzers=analyzers)
-for result in results:
-    print(f"Net profit: {result[0].analyzers.tradeanalyzer.get_analysis()['pnl']['net']['total']}")
+# for result in results:
+#     print(f"Net profit: {result[0].analyzers.tradeanalyzer.get_analysis()['pnl']['net']['total']}")
 

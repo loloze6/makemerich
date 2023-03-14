@@ -169,7 +169,7 @@ result=cerebro.run()
 # # exchange.create_order('BNB/USDT', 'limit', 'buy', 1, price=270)
 
 import ccxt
-from GetAPIKeys import GetAPIKeys
+from Account_management.GetAPIKeys import GetAPIKeys
 sandbox=True
 credential = GetAPIKeys().getAPIkeys(sandbox)
 binance_api_key = credential['User']
@@ -186,7 +186,12 @@ exchange.fetch_balance()
 exchange.fetch_orders('BTC/USDT')
 # exchange.create_order('BTC/USDT', type='Market', side='sell', amount=0.011)
 # exchange.create_order('BTC/USDT', type='Market', side='buy', amount=0.01)
+stopLossParams = {'trailingDelta': 25000}
 
+exchange.create_order(symbol='BNB/USDT', type='STOP_MARKET', side='sell',
+                                          amount=1, price=308.50000000)
+exchange.create_order('BNB/USDT', 'STOP_LOSS_LIMIT', 'sell',
+                                          1, 290.50000000, params={'trailpercent': 290.50000000})
 # # exchange.create_order('BNB/USDT', 'limit', 'buy', 1, price=270)
 # # exchange.cancel_order(5157256,'BTC/USDT')
 
@@ -195,23 +200,44 @@ exchange.fetch_orders('BTC/USDT')
 
 # # requests.get('http://httpbin.org/')
 # # debug_requests_off()
-# # import requests
-# # import json
+import requests
+import json
 
-# # url = "https://testnet.binance.vision/api/v3/order?timestamp=1676455265632&symbol=BNBUSDT&side=BUY&newOrderRespType=RESULT&type=LIMIT&quantity=1&price=270&timeInForce=GTC&signature=9848101af38a291ed048b93f6616cf11fcdf9fe4ce147bc09d7097fbfbb88779"
-# # url = "https://testnet.binance.vision/api/v3/order?timestamp=1676455082855&symbol=BNBUSDT&side=BUY&newClientOrderId=x-R4BD3S826480cf92e5b68ea78001ae&newOrderRespType=FULL&type=LIMIT&quantity=1&price=270&timeInForce=GTC&created=1676451420000&recvWindow=60000&signature=9c67248238407a8c5d0784174bb41c065ea2cd70e42b83863661fcc304e9a428"
-# # headers = {'X-MBX-APIKEY': 'KEb9xqCanquHWYSpdY2AZAtzu3du5xRFjg5SKDBo0ixwhldQIlEh4vn6hzJVeBer'}
+url = "https://testnet.binance.vision/api/v3/order?timestamp=1676455265632&symbol=BNBUSDT&side=BUY&newOrderRespType=RESULT&type=S&quantity=1&price=270&timeInForce=GTC&signature=9848101af38a291ed048b93f6616cf11fcdf9fe4ce147bc09d7097fbfbb88779"
+url = "https://testnet.binance.vision/api/v3/order?timestamp=1676455082855&symbol=BNBUSDT&side=BUY&newClientOrderId=x-R4BD3S826480cf92e5b68ea78001ae&newOrderRespType=FULL&type=LIMIT&quantity=1&price=270&timeInForce=GTC&created=1676451420000&recvWindow=60000&signature=9c67248238407a8c5d0784174bb41c065ea2cd70e42b83863661fcc304e9a428"
+headers = {'X-MBX-APIKEY': 'KEb9xqCanquHWYSpdY2AZAtzu3du5xRFjg5SKDBo0ixwhldQIlEh4vn6hzJVeBer'}
 
 
-# # # headers = {'X-MBX-APIKEY': 'KEb9xqCanquHWYSpdY2AZAtzu3du5xRFjg5SKDBo0ixwhldQIlEh4vn6hzJVeBer', 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'python-requests/2.28.2', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive'}
+# headers = {'X-MBX-APIKEY': 'KEb9xqCanquHWYSpdY2AZAtzu3du5xRFjg5SKDBo0ixwhldQIlEh4vn6hzJVeBer', 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'python-requests/2.28.2', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive'}
  
-# # data = {'X-MBX-APIKEY': 'KEb9xqCanquHWYSpdY2AZAtzu3du5xRFjg5SKDBo0ixwhldQIlEh4vn6hzJVeBer', 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'python-requests/2.28.2', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive'}
+data = {'X-MBX-APIKEY': 'KEb9xqCanquHWYSpdY2AZAtzu3du5xRFjg5SKDBo0ixwhldQIlEh4vn6hzJVeBer', 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'python-requests/2.28.2', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive'}
  
-# # response = requests.post(url, 
-# #                         headers=headers
+response = requests.post(url, 
+                        headers=headers
 
-# #                          )
+                         )
  
-# # print("Status Code", response.status_code)
+print("Status Code", response.status_code)
 
-# # print("JSON Response ", response.json())
+print("JSON Response ", response.json())
+
+
+kargs = dict(data='data', price='1234', exectype=1,valid=1, tradeid=1)
+kargs.update({})
+#changed to not None instead of None
+kargs['transmit'] = True is not None
+kargs['size'] = o.size
+#Debug
+print(kargs)
+exchange.create_order(**kargs)
+kargs['params']['test'] = {}
+
+def test(data=None, valid=None, tradeid=0, limitprice=None, limitexec=1, **kwargs):
+    kargs = dict(data=data, price=limitprice, exectype=limitexec,valid=valid, tradeid=tradeid)
+    kargs.update(kwargs)
+    kargs['transmit'] = True
+    #Debug
+    return(kargs)
+
+test123=test(price=1234, stopprice=5678, limitprice=99, params={'StopPrice': 1111})
+test123

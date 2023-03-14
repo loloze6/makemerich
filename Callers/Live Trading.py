@@ -10,21 +10,23 @@ from Strategy.BuyHoldwithBracket import BuyHoldStrategy
 from Strategy.Base_Strategy_simplified import TestStrategy
 from Strategy.EMAwithBracket import BracketStrategyExample
 
+import Others.LoggerAPI as logger
+# logger.debug_requests_on()
 
 sandbox = True
+exchange='binance'
+
+credential = GetAPIKeys().getAPIkeys(exchange, sandbox)
+api_key = credential['User']
+api_secret = credential['Password']
 
 
-credential = GetAPIKeys().getAPIkeys(sandbox)
-binance_api_key = credential['User']
-binance_api_secret = credential['Password']
-
-
-store2 = CCXTStore(
-    exchange='binance',
+store1 = CCXTStore(
+    exchange=exchange,
     currency='USDT',
     config={
-        'apiKey': binance_api_key,
-        'secret': binance_api_secret,
+        'apiKey': api_key,
+        'secret': api_secret,
         'nonce': lambda: str(int(time.time() * 1000)),
         'enableRateLimit': True,
         'adjustForTimeDifference': True,
@@ -34,13 +36,34 @@ store2 = CCXTStore(
     },
     retries=1,
     sandbox=sandbox,
-    debug=False
+    debug=True
 )
+
+
+# store2 = CCXTStore(
+#     exchange=exchange,
+#     currency='USDT',
+#     config={
+#         'apiKey': api_key,
+#         'secret': api_secret,
+#         'nonce': lambda: str(int(time.time() * 1000)),
+#         'enableRateLimit': True,
+#         'adjustForTimeDifference': True,
+#         'newOrderRespType': 'FULL',
+#         'defaultTimeInForce': 'GTC',
+#         'verbose': True
+#     },
+#     retries=1,
+#     sandbox=sandbox,
+#     debug=True
+# )
+
+
 
 bot = TradingBot()
 
-# strategy = TestStrategy
-# strategy_parameters = {}
+strategy = TestStrategy
+strategy_parameters = {}
 
 
 # strategy = BracketStrategyExample
@@ -48,10 +71,10 @@ bot = TradingBot()
 #     'period_me1': 12, 'logging': True, 'stop_loss': 1, 'risk_reward': range(1, 5)
 # }
 
-strategy = BuyHoldStrategy
-strategy_parameters = {
-    'logging': True, 'stop_loss': 0.1, 'risk_reward': 1
-}
+# strategy = BuyHoldStrategy
+# strategy_parameters = {
+#     'logging': True, 'stop_loss': 0.015, 'risk_reward': 3
+# }
 
 sizer = bt.sizers.PercentSizer
 sizer_parameters = {
@@ -64,15 +87,15 @@ analyzers = [
 
 
 live_parameters = {
-    'dataname': 'BNB/USDT',
-    'name': "BNBUSDT",
+    'dataname': 'BTC/USDT',
+    'name': "BTCUSDT",
     'timeframe': bt.TimeFrame.Minutes,
     'timeDeltaMin': 50,
     'compression':1,
     'ohlcv_limit':50,
     'drop_newest':True
 }
-result, cerebro =bot.live(strategy, live_parameters, store=store2, strategy_parameters=strategy_parameters, sizer=sizer,
+result, cerebro =bot.live(strategy, live_parameters, store=store1, strategy_parameters=strategy_parameters, sizer=sizer,
          sizer_parameters=sizer_parameters, analyzers=analyzers)
          
 strat_result = result[0]
