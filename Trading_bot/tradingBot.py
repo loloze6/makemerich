@@ -16,19 +16,10 @@ class TradingBot:
 
         cerebro.broker.setcash(initial_cash)
         cerebro.broker.setcommission(commission=commission)
-        cerebro.broker.set_slippage_perc(slippage)
-
-        if not strategy_parameters:
-            strategy_parameters = {}
-        cerebro.optstrategy(strategy, **strategy_parameters)
-
-        if not sizer_parameters:
-            sizer_parameters = {}
-        cerebro.addsizer(sizer, **sizer_parameters)
-
-        if analyzers:
-            for analyzer in analyzers:
-                cerebro.addanalyzer(analyzer)
+        cerebro.broker.set_slippage_perc(slippage)        
+        
+        #Live=True to add strategy and not opt; would require a check if strategy_parameters is iterable
+        self.configure_cerebro(cerebro, strategy, strategy_parameters, sizer, sizer_parameters, analyzers, live=True)
 
         results = cerebro.run(maxcpus=1)
         return results, cerebro

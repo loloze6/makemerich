@@ -8,7 +8,7 @@ from Account_management.GetAPIKeys import GetAPIKeys
 
 from Strategy.BuyHoldwithBracket import BuyHoldStrategy
 from Strategy.Base_Strategy_simplified import TestStrategy
-from Strategy.EMAwithBracket import BracketStrategyExample
+from Strategy.EMAwithBracket import EMAStrategyExample
 
 import Others.LoggerAPI as logger
 # logger.debug_requests_on()
@@ -62,14 +62,14 @@ store1 = CCXTStore(
 
 bot = TradingBot()
 
-strategy = TestStrategy
-strategy_parameters = {}
+# strategy = TestStrategy
+# strategy_parameters = {}
 
 
-# strategy = BracketStrategyExample
-# strategy_parameters = {
-#     'period_me1': 12, 'logging': True, 'stop_loss': 1, 'risk_reward': range(1, 5)
-# }
+strategy = EMAStrategyExample
+strategy_parameters = {
+    'period_me1': 12, 'logging': True, 'stop_loss': 1, 
+}
 
 # strategy = BuyHoldStrategy
 # strategy_parameters = {

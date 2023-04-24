@@ -75,6 +75,8 @@ exchange.create_order(symbol='BTC/USDT', type='STOP_LOSS_LIMIT', side='sell',
 
 exchange.create_order(symbol='BTC/USDT', type='LIMIT', side='sell', price=22000, amount=0.1)
 
+exchange.private_post_order_oco({ "symbol": "BTCUSDT", "side": "buy", "quantity": 0.002, "price": 33374, "stopPrice": 21000, "stopLimitPrice": 21000, "stopLimitTimeInForce": "GTC"})
+
 convertAllToToken('binance', sandbox, 'USDT')
 
 

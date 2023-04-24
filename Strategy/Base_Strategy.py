@@ -195,7 +195,7 @@ class BaseStrategy(bt.Strategy):
                     take_profit_price
                     ))
             orders = self.buy_bracket(price=ACTUAL_PRICE, stopprice=stop_price, limitprice=take_profit_price)
-
+            
         elif stop_price != ACTUAL_PRICE and take_profit_price == ACTUAL_PRICE:
             self._log('Order Stop Price: {} / Stop Price {} / Take Profit Price  {}'.format(
                     ACTUAL_PRICE,
